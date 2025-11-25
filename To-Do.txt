@@ -1,0 +1,10 @@
+To-Do:
+Display Feld recherchieren das pro Spiel variiert werden kann
+verdeckt und offens status von Karten visuell regeln
+Spiel-Logik für Single Player implementieren
+Grafiken besorgen und einbinden
+Muktiplayerframework recherchieren und auf Heimserver aufstezten
+Muktiplayer-Logik implementieren 
+Turn system and server updates
+Main-Menu entwerfen und implementieren
+duplicate includes entfernen
