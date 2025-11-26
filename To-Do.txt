@@ -9,6 +9,8 @@ Turn system and server updates
 Main-Menu entwerfen und implementieren
 duplicate includes entfernen
 
+create playerdatabase withs cores for all games
+
 alle Games in Haputklassen verlegen und deckCopies machen
 
 

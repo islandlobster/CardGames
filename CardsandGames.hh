@@ -1,5 +1,6 @@
 #include<iostream>
 #include<vector>
+#include <algorithm>
 
 
 template<typename GameType>
@@ -63,13 +64,15 @@ public:
     int suits = 4;
     int ranks = 8;
 
-    void fillDeck(std::vector<Card<Schafkopf>>& deckCopy){
+    void fillDeck(std::vector<Card<Schafkopf>*>& deckCopy){
         for(int s=0; s<suits; s++){
             for(int r=0; r<ranks; r++){
-                deckCopy.push_back(Card<Schafkopf>(static_cast<Suit>(s), static_cast<Rank>(r)));
+                deckCopy.push_back(new Card<Schafkopf>(static_cast<Suit>(s), static_cast<Rank>(r)));
             }
         }
     }
+
+
 private:
     int maxPlayers = 4;
     int minPlayers = 4;
@@ -78,7 +81,24 @@ private:
         if(minPlayers<=playerList.size() && playerList.size()<=maxPlayers) {return true;}else{return false;}
     }
     std::vector<int> scores;
-    std::vector<Card<Schafkopf>> deck;
+    std::vector<Card<Schafkopf>*> deck;
+
+    void distributeCards(){
+        for(auto& p : playerList){
+            p.emptyHand();
+        }
+        //shuffle deck
+        std::random_shuffle(deck.begin(), deck.end());
+        //deal cards to players
+        dealCards(8); //4*8 = 32
+    }
+    void dealCards(int amntPerPlayer){
+        for(int i=deck.size()-1; i>=deck.size()-(amntPerPlayer*playerList.size()); i--){
+            playerList[i % playerList.size()].giveCard(deck[i]);
+            //give card deck[i] to playerList[i % playerList.size()] and remove from deck
+            deck.pop_back();
+        }
+    }
 
     public:
             
@@ -87,28 +107,42 @@ private:
         else{throw std::runtime_error("Cannot add more players to the game.");}
     }
 
-    //add more game logic here
-    //Game Logic blue-print:
-    //initualize game
     void startGame(){
         //do pregame checks
-        //
-        deck.clear();
+        if(runPlayerCheck()){}
+        else{throw std::runtime_error("Not enough players to start the game.");}
+        //run meta checks, deck exists, points, etc
+        
+        //empty deck aka delte pointers
+        CardVectorClear<Schafkopf>(deck);
+        //refill deck
         fillDeck(deck);
+        //start Round Loop until break by playerschoice
     }
-    //shuffle and distribute cards
-    void distributeCards(){
-        for(auto& p : playerList){
-            p.emptyHand();
-        }
-        //deal cards to players
-        for(int i=deck.size()-1; i>=0; i--){
-            playerList[i % playerList.size()].giveCard(deck[i]);
-            //give card deck[i] to playerList[i % playerList.size()] and remove from deck
-            deck.pop_back();
+
+    void roundLoop(){
+        bool gameRunning = true;
+        while(gameRunning){
+            CardVectorClear<Schafkopf>(deck);
+            fillDeck(deck);
+            distributeCards();
+            //ask player for bets in order
+            //form teams based on bets
+            //set winMargin by bet and set Sau
+
+            //turn-by-turn play until all cards played
+            //calculate scores
+            //claculate winner team based on winMargin and Sau
+            //update scores for outside use
+            //disband teams
+
+            //ask players if they want to play another round
+            //if not, set gameRunning = false
+            //else set order for next round
+
+            
         }
     }
-    //pregame setup
     //turn-by-turn Game
     //win condition
     //set/keep score
@@ -148,6 +182,13 @@ class Card {
     //pos??
     //owner??
 };
+template<typename GameType>
+void CardVectorClear(std::vector<Card<GameType>*> cards){
+    for(auto card : cards){
+        delete card;
+    }
+    cards.clear();
+}
 
 template<typename GameType>
 class Player {
@@ -169,9 +210,10 @@ class Player {
             }
             return hasCard;
         }
-        void giveCard(Card<GameType>& card){
+        void giveCard(Card<GameType>* card){
             hand.push_back(card);
             //card must be deleted from source deck after giving
+
         }
         void removeCard(Card<GameType>& card){
             for(auto it = hand.begin(); it != hand.end(); ++it){
@@ -182,7 +224,7 @@ class Player {
             }
         }
         void emptyHand(){
-            hand.clear();
+            CardVectorClear<GameType>(hand);
         }
 
     private:
