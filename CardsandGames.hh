@@ -1,10 +1,11 @@
 #include<iostream>
 #include<vector>
 
-#include"Players.hh"
 
 template<typename GameType>
 class Card;
+template<typename GameType>
+class Player;
 
 class Poker {
 public:
@@ -62,18 +63,55 @@ public:
     int suits = 4;
     int ranks = 8;
 
-    std::vector<Card<Schafkopf>> deck;
-    void fillDeck(){
+    void fillDeck(std::vector<Card<Schafkopf>>& deckCopy){
         for(int s=0; s<suits; s++){
             for(int r=0; r<ranks; r++){
-                deck.push_back(Card<Schafkopf>(static_cast<Suit>(s), static_cast<Rank>(r)));
+                deckCopy.push_back(Card<Schafkopf>(static_cast<Suit>(s), static_cast<Rank>(r)));
             }
         }
     }
+private:
+    int maxPlayers = 4;
+    int minPlayers = 4;
+    std::vector<Player<Schafkopf>> playerList;
+    bool runPlayerCheck(){
+        if(minPlayers<=playerList.size() && playerList.size()<=maxPlayers) {return true;}else{return false;}
+    }
+    std::vector<int> scores;
+    std::vector<Card<Schafkopf>> deck;
 
-    class Game{
-        std::vector<Player>playerList;
-    };
+    public:
+            
+    void addPlayer(Player<Schafkopf> p){
+        if(runPlayerCheck()){playerList.push_back(p);}
+        else{throw std::runtime_error("Cannot add more players to the game.");}
+    }
+
+    //add more game logic here
+    //Game Logic blue-print:
+    //initualize game
+    void startGame(){
+        //do pregame checks
+        //
+        deck.clear();
+        fillDeck(deck);
+    }
+    //shuffle and distribute cards
+    void distributeCards(){
+        for(auto& p : playerList){
+            p.emptyHand();
+        }
+        //deal cards to players
+        for(int i=deck.size()-1; i>=0; i--){
+            playerList[i % playerList.size()].giveCard(deck[i]);
+            //give card deck[i] to playerList[i % playerList.size()] and remove from deck
+            deck.pop_back();
+        }
+    }
+    //pregame setup
+    //turn-by-turn Game
+    //win condition
+    //set/keep score
 };
 
 
@@ -109,4 +147,47 @@ class Card {
 
     //pos??
     //owner??
+};
+
+template<typename GameType>
+class Player {
+    public:
+        Player(){set = false;}
+
+        void assignData(){
+            if(set) return;
+            else{
+                //ask for name
+                //assign picture
+                set = true;
+            }
+        }
+        bool hasCard(Card<GameType>& card){
+            bool hasCard = false;
+            for(auto& c : hand){
+                if(c.getSuit() == card.getSuit() && c.getRank() == card.getRank()) {hasCard = true; break;}
+            }
+            return hasCard;
+        }
+        void giveCard(Card<GameType>& card){
+            hand.push_back(card);
+            //card must be deleted from source deck after giving
+        }
+        void removeCard(Card<GameType>& card){
+            for(auto it = hand.begin(); it != hand.end(); ++it){
+                if(it->getSuit() == card.getSuit() && it->getRank() == card.getRank()){
+                    hand.erase(it);
+                    break;
+                }
+            }
+        }
+        void emptyHand(){
+            hand.clear();
+        }
+
+    private:
+        std::string name;
+        //picture
+        std::vector<Card<GameType>> hand;
+        bool set;
 };

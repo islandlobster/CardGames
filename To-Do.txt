@@ -8,3 +8,27 @@ Muktiplayer-Logik implementieren
 Turn system and server updates
 Main-Menu entwerfen und implementieren
 duplicate includes entfernen
+
+alle Games in Haputklassen verlegen und deckCopies machen
+
+
+
+Game Logic blue-print:
+initualize game
+shuffle and distribute cards
+pregame setup
+turn-by-turn Game
+win condition
+
+
+Main Menu:
+Online
+>pick game
+>pick bot difficulty
+
+Offline
+>pick game
+>join lobby
+>start game
+
+Customize
