@@ -389,18 +389,44 @@ private:
                 if(highestCard == nullptr){throw std::runtime_error("highest Card is nullptr, something must have been wrong while assigning/determining card logic");}
                 Player<Schafkopf>* stichWinner = highestCard->getOwner();
 
-                //set startStich to stich winner for next stich
-                for(int i=0; i<playerList.size(); i++){
-                    if(playerList[i]==*stichWinner){startStich = i; break;}
+                int stichValue = 0; 
+                for(auto& c : FLOP){
+                    switch(c.getRank()){
+                        case Schafkopf::Rank::Ass:
+                            stichValue += 11; break;
+                        case Schafkopf::Rank::Zehn:
+                            stichValue += 10; break;
+                        case Schafkopf::Rank::König:
+                            stichValue += 4; break;
+                        case Schafkopf::Rank::Ober:
+                            stichValue += 3; break;
+                        case Schafkopf::Rank::Unter:
+                            stichValue += 2; break;
+                        default:
+                            break;
+                    }
                 }
 
-                //add stich cards to stich winner's pile 
-                if(SpielArtRound == SpielArt::Ramsch){
-                    //substract from score
-                }else{
-                    //add to score
+                //set startStich to stich winner for next stich
+                for(int i=0; i<playerList.size(); i++){
+                    if(playerList[i]==*stichWinner){
+                        startStich = i; break;
+                        scoresThisRound[i] += stichValue; 
+                    }
+                }
+                //To-Do: delete cards in FLOP since regenerated every round
+                for(auto& c : FLOP){
+                    c.setOwner(nullptr);
+                    delete &c;
                 }
                 
+            }
+
+            //after round score calculation
+            if(SpielArtRound == SpielArt::Ramsch){
+                //substract from score of all players based on scoresThisRound
+            }else{
+                //add to score of activePlayers based on scoresThisRound and winMargin
             }
 
             //calculate scores based on active players and SpielArtRound
